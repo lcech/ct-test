@@ -1,10 +1,19 @@
 (function(window) {
   window.measure = function(data) {
+    var img,
+        src;
     data = data || {};
     
     switch (data.event) {
     case 'init':
       measure._debug(data);
+      img = document.createElement("img");
+      img.width = 1;
+      img.height = 1;
+      src = "http://dmp.417.cz/record.gif";
+      src += "?n=1";
+      src += "&vid=" + data.vid;
+      img.src = src;
       break;
     default:    
       measure._debug('Unknown event ID.');
