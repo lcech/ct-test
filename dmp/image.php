@@ -20,11 +20,11 @@ function gen_uuid() {
         mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
     );
 }
-header("P3P: policyref=\"/w3c/p3p.xml\", CP=\"NOI DSP COR NID PSA OUR IND COM NAV STA\"");
-header("Content-Type: image/gif");
 $expire = time() + 60 * 60 * 24 * 365 * 5;
 $domain = "." . implode(".", array_slice(explode(".", $_SERVER["HTTP_HOST"]), -2, 2, true));
-$redir = $_SERVER["QUERY_STRING"] !== "" ? strpos("n=1", $_SERVER["QUERY_STRING"]) !== false : false;
+if ($_SERVER["QUERY_STRING"] !== "") {
+  $redir = strpos($_SERVER["QUERY_STRING"], "n=1");
+}
 if (!isset($_COOKIE["ct_tp_uuid"])) {
     $uuid = gen_uuid();
     if (!$redir) {
@@ -34,6 +34,8 @@ if (!isset($_COOKIE["ct_tp_uuid"])) {
     }
 } else {
     setcookie("ct_tp_uuid", $_COOKIE["ct_tp_uuid"], $expire, "/", $domain);
+    header("P3P: policyref=\"/w3c/p3p.xml\", CP=\"NOI DSP COR NID PSA OUR IND COM NAV STA\"");
+    header("Content-Type: image/gif");
     echo "\x47\x49\x46\x38\x37\x61\x1\x0\x1\x0\x80\x0\x0\xfc\x6a\x6c\x0\x0\x0\x2c\x0\x0\x0\x0\x1\x0\x1\x0\x0\x2\x2\x44\x1\x0\x3b";
 }
 ?>
