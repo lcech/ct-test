@@ -1,38 +1,50 @@
 (function(window) {
-  window.measure = function(data) {
-    var img,
-        src;
-    data = data || {};
+  window.measure = function() {
+    var uuidCookie,
+        uuid;
     
-    switch (data.event) {
-    case 'init':
-      measure._debug(data);
-      img = document.createElement("img");
-      img.width = 1;
-      img.height = 1;
-      src = "http://dmp.417.cz/record.gif";
-      src += "?n=1";
-      src += "&vid=" + data.vid;
-      img.src = src;
-      break;
-    default:    
-      measure._debug('Unknown event ID.');
+    uuidCookie = window.measure.getCookie("ct_fp_uuid");
+    
+    if (typeof uuidCookie !== "undefined") {
+      uuid = uuidCookie;
+    } else {
+      uuid = window.measure._generateUuid();
     }
+
+    window.measure.setCookie("ct_fp_uuid", uuid, 1825);
+    measure._debug("UUID: " + uuid);
+    
+    window.measure._track(uuid);
   };
   
   /**
-   * Async Script Loader
+   * Generate UUID according to RFC4122 version 4
    * @type {Function}
    * @private
    */
-  window.measure._requestAsyncScript = function (url) {
-    var s = document.createElement('script'),
-        x = document.getElementsByTagName('script')[0];
-    s.type = 'text/javascript';
-    s.async = true;
-    s.src = url;
-    x.parentNode.insertBefore(s, x);
-  };
+  window.measure._generateUuid = function () {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  
+  /**
+   * Generate UUID according to RFC4122 version 4
+   * @type {Function}
+   * @private
+   */
+  window.measure._track = function (uuid) {
+    var img,
+        src;
+        
+    img = document.createElement("img");
+    img.width = 1;
+    img.height = 1;
+    src = "http://dmp.417.cz/record.gif";
+    src += "?fp_uuid=" + uuid;
+    img.src = src;
+  }
   
   /**
    * Debug
@@ -93,8 +105,6 @@
     document.cookie = name + '=' + value + '; ' + expires + '; path=/';
   };
   
-  window.addEventListener("load", function (event) {
-    measure._requestAsyncScript('http://dmp.417.cz/record.js');
-  }, false);
+  window.addEventListener("load", measure, false);
   
 })(window);
